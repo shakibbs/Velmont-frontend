@@ -69,12 +69,6 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-3">
             <Link
-              to="/admin"
-              className="hidden text-[11px] font-medium uppercase tracking-[0.16em] transition-opacity hover:opacity-50 md:inline"
-            >
-              Admin
-            </Link>
-            <Link
               to="/cart"
               className="relative rounded-full bg-ink px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-transform hover:scale-[1.04]"
             >
@@ -118,7 +112,7 @@ export function SiteHeader() {
         {menuOpen && (
           <div className="mx-auto mt-2 max-w-7xl rounded-3xl bg-shell/95 p-4 shadow-[var(--shadow-card)] backdrop-blur-xl lg:hidden">
             <ul className="space-y-1 text-[12px] font-semibold uppercase tracking-[0.16em]">
-              {[...settings.nav, { label: "Size guide", to: "/size-guide" }, { label: "About", to: "/about" }, { label: "Contact", to: "/contact" }, { label: "Admin", to: "/admin" }].map(
+              {[...settings.nav, { label: "Size guide", to: "/size-guide" }, { label: "About", to: "/about" }, { label: "Contact", to: "/contact" }].map(
                 (item) => {
                   const { path, search } = parseTo(item.to);
                   return (
