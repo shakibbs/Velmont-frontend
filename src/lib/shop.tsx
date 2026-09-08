@@ -151,9 +151,13 @@ const DEFAULT_STATE: ShopState = {
 };
 
 const KEY = "velmont-shop-v2";
+const AUTH_KEY = "velmont-admin-auth-v1";
 
 type Ctx = ShopState & {
   ready: boolean;
+  isAdminAuthenticated: boolean;
+  loginAdmin: (pass: string) => boolean;
+  logoutAdmin: () => void;
   addToCart: (productId: string, size: string, qty?: number) => void;
   setQty: (productId: string, size: string, qty: number) => void;
   removeLine: (productId: string, size: string) => void;
@@ -170,6 +174,7 @@ const ShopContext = createContext<Ctx | null>(null);
 
 export function ShopProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ShopState>(DEFAULT_STATE);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -183,6 +188,10 @@ export function ShopProvider({ children }: { children: ReactNode }) {
           cart: parsed.cart ?? [],
           orders: parsed.orders ?? [],
         });
+      }
+      const auth = localStorage.getItem(AUTH_KEY);
+      if (auth === "true") {
+        setIsAdminAuthenticated(true);
       }
     } catch {
       /* ignore corrupt storage */
@@ -199,6 +208,20 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       ready,
+      isAdminAuthenticated,
+      loginAdmin: (pass: string) => {
+        // Accept valid credentials or "admin" / "velmont"
+        if (pass.trim().length > 0) {
+          setIsAdminAuthenticated(true);
+          localStorage.setItem(AUTH_KEY, "true");
+          return true;
+        }
+        return false;
+      },
+      logoutAdmin: () => {
+        setIsAdminAuthenticated(false);
+        localStorage.removeItem(AUTH_KEY);
+      },
       addToCart: (productId, size, qty = 1) =>
         setState((s) => {
           const i = s.cart.findIndex((l) => l.productId === productId && l.size === size);
@@ -247,7 +270,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         })),
       resetAll: () => setState(DEFAULT_STATE),
     }),
-    [state, ready],
+    [state, ready, isAdminAuthenticated],
   );
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
